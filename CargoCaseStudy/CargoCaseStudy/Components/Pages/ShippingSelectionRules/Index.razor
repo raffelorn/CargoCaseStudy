@@ -1,0 +1,95 @@
+﻿@page "/ShippingSelectionRules/Index"
+
+@inject HttpClient Http
+
+@rendermode InteractiveServer
+<h3>Shipping Selection Rules</h3>
+
+@if (isLoading)
+{
+	<p>Loading...</p>
+}
+else if (ShippingSelectionRuleList != null && ShippingSelectionRuleList.Count > 0)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>OrderNo</th>
+				<th>City</th>
+				<th>District</th>
+				<th>Cargo</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var rule in ShippingSelectionRuleList)
+			{
+				<tr>
+					<td>@rule.Id</td>
+					<td>@rule.OrderNo</td>
+					<td>@rule.City</td>
+					<td>@rule.District</td>
+					<td>@rule.Cargo</td>
+					<td>
+						<button class="btn bg-light">
+							<a href="/ShippingSelectionRules/Edit/@rule.Id">
+								Edit
+							</a>
+						</button>
+						<button @onclick="() => DeleteShippingSelectionRules(rule.Id)" class="btn btn-danger">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+else
+{
+	<p>No shipping selection rules found.</p>
+}
+
+
+<button class="btn btn-success" type="button">
+	<a href="/ShippingSelectionRules/Add" style="color: white; text-decoration: none;">Add New Selection rule</a>
+</button>
+
+
+
+
+@code {
+
+	private List<ShippingSelectionRule> ShippingSelectionRuleList = new();
+	private ShippingSelectionRulesViewModel newShippingSelectionRule = new ShippingSelectionRulesViewModel();
+	private bool isLoading = true;
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadShippingSelectionRulesAsync();
+	}
+
+	private async Task LoadShippingSelectionRulesAsync()
+	{
+		try
+		{
+			isLoading = true;
+			ShippingSelectionRuleList = await Http.GetFromJsonAsync<List<ShippingSelectionRule>>("/api/ShippingSelectionRules/getAllShippingRules");
+			ShippingSelectionRuleList = ShippingSelectionRuleList!.OrderBy(p => p.Id).ToList();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error loading ShippingSelection Rules: {ex.Message}");
+		}
+		finally
+		{
+			isLoading = false;
+		}
+	}
+
+	private async Task DeleteShippingSelectionRules(int id)
+	{
+		await Http.DeleteAsync($"/api/ShippingSelectionRules/delete/{id}");
+		await LoadShippingSelectionRulesAsync();
+	}
+
+
+}

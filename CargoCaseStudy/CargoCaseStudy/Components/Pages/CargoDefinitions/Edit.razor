@@ -1,0 +1,59 @@
+﻿@page "/CargoDefinitions/Edit/{Id:int}"
+@rendermode InteractiveServer
+<h3>Edit Cargo Definitions</h3>
+
+<EditForm Model="@existingData" OnValidSubmit="HandleEdit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Cargo</label>
+        <InputText @bind-Value="existingData.Cargo" />
+    </div>
+     <div>
+        <label>MinWeight</label>
+        <InputNumber @bind-Value="existingData.MinWeight" />
+    </div> 
+    <div>
+        <label>MaxWeight</label>
+        <InputNumber @bind-Value="existingData.MaxWeight" />
+    </div> 
+
+  
+    <button type="submit">Save Changes</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private CargoDefinition existingData = new CargoDefinition();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            existingData = await Http.GetFromJsonAsync<CargoDefinition>($"/api/cargo/getByID/{Id}");
+            if (existingData == null)
+            {
+                Console.WriteLine("Cargo not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading cargo: {ex.Message}");
+        }
+    }
+
+    private async Task HandleEdit()
+    {
+        var response = await Http.PutAsJsonAsync($"/api/Cargo/edit/{Id}", existingData);
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Data edited successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Failed to edit data.");
+        }
+    }
+}

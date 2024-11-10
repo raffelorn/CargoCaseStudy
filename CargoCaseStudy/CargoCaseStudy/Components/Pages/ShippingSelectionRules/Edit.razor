@@ -1,0 +1,62 @@
+﻿@page "/ShippingSelectionRules/Edit/{Id:int}"
+@rendermode InteractiveServer
+<h3>Edit Shipping Selection Rules</h3>
+
+<EditForm Model="@existingData" OnValidSubmit="HandleEdit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Cargo</label>
+        <InputText @bind-Value="existingData.Cargo" />
+    </div>
+    <div>
+        <label>Order No</label>
+        <InputNumber @bind-Value="existingData.OrderNo" />
+    </div>
+    <div>
+        <label>City</label>
+        <InputText @bind-Value="existingData.City" />
+    </div>
+    <div>
+        <label>District</label>
+        <InputText @bind-Value="existingData.District" />
+    </div>
+
+
+    <button type="submit">Save Changes</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ShippingSelectionRule existingData = new ShippingSelectionRule();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            existingData = await Http.GetFromJsonAsync<ShippingSelectionRule>($"/api/ShippingSelectionRules/getByID/{Id}");
+            if (existingData == null)
+            {
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading cargo: {ex.Message}");
+        }
+    }
+
+    private async Task HandleEdit()
+    {
+        var response = await Http.PutAsJsonAsync($"/api/ShippingSelectionRules/edit/{Id}", existingData);
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Data edited successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Failed to edit data.");
+        }
+    }
+}

@@ -1,0 +1,68 @@
+﻿@page "/ShippingSelectionRules/Add"
+@rendermode InteractiveServer
+<EditForm Model="@newData" OnSubmit="HandleAdd" FormName="addForm">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<div>
+		<label>Cargo</label>
+		<InputText @bind-Value="@newData.Cargo" />
+	</div>
+
+	<div>
+		<label>OrderNo</label>
+		<InputNumber @bind-Value="@newData.OrderNo" step="any" />
+	</div>
+
+	<div>
+		<label>City</label>
+		<InputText @bind-Value="@newData.City" step="any" />
+	</div>
+	<div>
+		<label>District</label>
+		<InputText @bind-Value="@newData.District" step="any" />
+	</div>
+
+
+	<button type="submit">Add Data</button>
+</EditForm>
+
+@code {
+	private ShippingSelectionRulesViewModel newData = new ShippingSelectionRulesViewModel();
+
+	protected override void OnInitialized()
+	{
+		newData ??= new();
+	}
+
+	private async Task HandleAdd()
+	{
+		try
+		{
+			var createdData = new ShippingSelectionRulesViewModel
+				{
+					Cargo = newData.Cargo,
+					City = newData.City,
+					District = newData.District,
+					OrderNo = newData.OrderNo
+				};
+			var serializedData = System.Text.Json.JsonSerializer.Serialize(createdData);
+			var content = new StringContent(serializedData, System.Text.Encoding.UTF8, "application/json");
+			var response = await Http.PostAsync("/api/ShippingSelectionRules/create", content);
+			Http.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+			if (response.IsSuccessStatusCode)
+			{
+				Console.WriteLine("Data added successfully.");
+			}
+			else
+			{
+				var error = await response.Content.ReadAsStringAsync();
+				Console.WriteLine($"Failed to add data. Error: {error}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Exception occurred: {ex.Message}");
+		}
+	}
+}

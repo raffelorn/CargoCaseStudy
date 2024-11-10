@@ -1,0 +1,91 @@
+﻿@page "/CargoDefinitions/Index"
+
+@rendermode InteractiveServer
+<h3>Cargo Definitions</h3>
+
+@if (isLoading)
+{
+	<p>Loading...</p>
+}
+else if (cargoList != null && cargoList.Count > 0)
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Cargo</th>
+				<th>Min Weight</th>
+				<th>Max Weight</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var cargo in cargoList)
+			{
+				<tr>
+					<td>@cargo.Id</td>
+					<td>@cargo.Cargo</td>
+					<td>@cargo.MinWeight</td>
+					<td>@cargo.MaxWeight</td>
+					<td>
+						<button class="btn bg-light">
+							<a href="/CargoDefinitions/Edit/@cargo.Id">
+								Edit
+							</a>
+						</button>
+						<button @onclick="() => DeleteCargo(cargo.Id)" class="btn btn-danger">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+else
+{
+	<p>No cargo records found.</p>
+}
+
+
+<button class="btn btn-success" type="button">
+	<a href="/CargoDefinitions/Add" style="color: white; text-decoration: none;">Add New Cargo</a>
+</button>
+
+
+
+
+@code {
+
+	private List<CargoDefinition> cargoList = new();
+	private CargoDefinitionViewModel newCargo = new CargoDefinitionViewModel();
+	private bool isLoading = true;
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadCargosAsync();
+	}
+
+	private async Task LoadCargosAsync()
+	{
+		try
+		{
+			isLoading = true;
+			cargoList = await Http.GetFromJsonAsync<List<CargoDefinition>>("/api/Cargo/getAllCargo");
+			cargoList = cargoList!.OrderBy(p => p.Id).ToList();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error loading cargos: {ex.Message}");
+		}
+		finally
+		{
+			isLoading = false;
+		}
+	}
+
+	private async Task DeleteCargo(int id)
+	{
+		await Http.DeleteAsync($"/api/Cargo/delete/{id}");
+		await LoadCargosAsync();
+	}
+
+
+}
