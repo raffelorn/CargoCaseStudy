@@ -7,7 +7,7 @@ This is a TMS (Transportation Management System) application designed to manage 
 
 ## Technologies Used
 
-- **Backend Framework**: .NET Core 6
+- **Backend Framework**: .NET Core 8
 - **Front-end Framework**: Blazor
 - **Database**: PostgreSQL
 - **ORM**: Entity Framework Core
@@ -27,11 +27,6 @@ This is a TMS (Transportation Management System) application designed to manage 
 
 ### Business Logic
 - The API ensures that both `City` and `District` match a rule, and the weight falls within the correct range, before returning results.
-
-### Technical Requirements
-- Proper validation is enforced on both the Blazor UI and API.
-- Exception handling for database operations to maintain data integrity.
-- The project follows best practices for clean code and maintainability.
 
 ## Database Schema
 
@@ -58,7 +53,7 @@ The project contains two primary tables:
 
 ### Prerequisites
 
-- .NET Core SDK 6.0 or higher
+- .NET Core SDK 8
 - PostgreSQL database
 
 ### Getting Started
@@ -89,12 +84,13 @@ The project contains two primary tables:
      ```bash
      dotnet run
      ```
-   - The Blazor front-end will open in the default browser at `https://localhost:5001`.
+   - The Blazor front-end will open in the default browser at `http://localhost:5019`.
+   - The API Swagger interface will open in the default browser at `http://localhost:5295/swagger/index.html`.
 
 5. **Testing the API**
    - Use an API client like Postman to test the API endpoint:
      ```http
-     POST https://localhost:5001/api/shipping-rules
+     POST https://localhost:5019/api/shipping-rules
      ```
      - **Body**:
        ```json
@@ -110,9 +106,4 @@ The project contains two primary tables:
 - **Controllers**: Contains API controllers for the backend.
 - **Pages**: Contains Blazor pages for managing `ShippingSelectionRules` and `CargoDefinitions`.
 - **Models**: Defines entity models and validation attributes.
-- **Data**: Includes the `ApplicationDbContext` for database context and data access logic.
-
-## Additional Notes
-
-- Ensure proper validation and exception handling in both the Blazor UI and API.
-- Follow best practices for clean code and maintainable structure.
+- **Data**: Includes the `AppDbContext` for database context and data access logic.
