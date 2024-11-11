@@ -1,6 +1,12 @@
 ﻿@page "/ShippingSelectionRules/Edit/{Id:int}"
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 <h3>Edit Shipping Selection Rules</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 
 <EditForm Model="@existingData" OnValidSubmit="HandleEdit">
     <DataAnnotationsValidator />
@@ -9,20 +15,23 @@
     <div>
         <label>Cargo</label>
         <InputText @bind-Value="existingData.Cargo" />
+        <ValidationMessage For="() => existingData.Cargo" />
     </div>
     <div>
         <label>Order No</label>
         <InputNumber @bind-Value="existingData.OrderNo" />
+        <ValidationMessage For="() => existingData.OrderNo" />
     </div>
     <div>
         <label>City</label>
         <InputText @bind-Value="existingData.City" />
+        <ValidationMessage For="() => existingData.City" />
     </div>
     <div>
         <label>District</label>
         <InputText @bind-Value="existingData.District" />
+        <ValidationMessage For="() => existingData.District" />
     </div>
-
 
     <button type="submit">Save Changes</button>
 </EditForm>
@@ -31,32 +40,44 @@
     [Parameter] public int Id { get; set; }
 
     private ShippingSelectionRule existingData = new ShippingSelectionRule();
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        errorMessage = string.Empty;
         try
         {
             existingData = await Http.GetFromJsonAsync<ShippingSelectionRule>($"/api/ShippingSelectionRules/getByID/{Id}");
             if (existingData == null)
             {
+                errorMessage = "Error: Data not found.";
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading cargo: {ex.Message}");
+            errorMessage = $"Error loading data: {ex.Message}";
         }
     }
 
     private async Task HandleEdit()
     {
-        var response = await Http.PutAsJsonAsync($"/api/ShippingSelectionRules/edit/{Id}", existingData);
-        if (response.IsSuccessStatusCode)
+        errorMessage = string.Empty;
+        try
         {
-            Console.WriteLine("Data edited successfully.");
+            var response = await Http.PutAsJsonAsync($"/api/ShippingSelectionRules/edit/{Id}", existingData);
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/ShippingSelectionRules/Index");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to edit data. Error: {error}";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("Failed to edit data.");
+            errorMessage = $"An exception occurred: {ex.Message}";
         }
     }
 }

@@ -27,14 +27,10 @@ namespace CargoCaseStudyAPI.Controllers
                               && cargoDef.MaxWeight >= model.Weight
                         select new
                         {
-                          
                             rule.OrderNo,
                             rule.Cargo,
-                            
                         };
-
             var result = await query.ToListAsync();
-
             return Ok(result);
         }
 

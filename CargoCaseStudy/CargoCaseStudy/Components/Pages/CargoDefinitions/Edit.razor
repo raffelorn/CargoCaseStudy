@@ -1,6 +1,9 @@
 ﻿@page "/CargoDefinitions/Edit/{Id:int}"
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 <h3>Edit Cargo Definitions</h3>
+
+
 
 <EditForm Model="@existingData" OnValidSubmit="HandleEdit">
     <DataAnnotationsValidator />
@@ -9,51 +12,67 @@
     <div>
         <label>Cargo</label>
         <InputText @bind-Value="existingData.Cargo" />
+        <ValidationMessage For="() => existingData.Cargo" />
     </div>
-     <div>
-        <label>MinWeight</label>
-        <InputNumber @bind-Value="existingData.MinWeight" />
-    </div> 
     <div>
-        <label>MaxWeight</label>
-        <InputNumber @bind-Value="existingData.MaxWeight" />
-    </div> 
+        <label>Min Weight</label>
+        <InputNumber @bind-Value="existingData.MinWeight" step="any" />
+        <ValidationMessage For="() => existingData.MinWeight" />
+    </div>
+    <div>
+        <label>Max Weight</label>
+        <InputNumber @bind-Value="existingData.MaxWeight" step="any" />
+        <ValidationMessage For="() => existingData.MaxWeight" />
+    </div>
 
-  
     <button type="submit">Save Changes</button>
 </EditForm>
-
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 @code {
     [Parameter] public int Id { get; set; }
+    private string errorMessage = string.Empty;
 
     private CargoDefinition existingData = new CargoDefinition();
 
     protected override async Task OnInitializedAsync()
     {
+        errorMessage = string.Empty;
         try
         {
             existingData = await Http.GetFromJsonAsync<CargoDefinition>($"/api/cargo/getByID/{Id}");
             if (existingData == null)
             {
-                Console.WriteLine("Cargo not found.");
+                errorMessage = "Error: Cargo not found.";
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading cargo: {ex.Message}");
+            errorMessage = $"Error loading cargo: {ex.Message}";
         }
     }
 
     private async Task HandleEdit()
     {
-        var response = await Http.PutAsJsonAsync($"/api/Cargo/edit/{Id}", existingData);
-        if (response.IsSuccessStatusCode)
+        errorMessage = string.Empty;
+        try
         {
-            Console.WriteLine("Data edited successfully.");
+            var response = await Http.PutAsJsonAsync($"/api/cargo/edit/{Id}", existingData);
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/CargoDefinitions/Index");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to edit data. Error: {error}";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("Failed to edit data.");
+            errorMessage = $"An exception occurred: {ex.Message}";
         }
     }
 }

@@ -1,68 +1,74 @@
 ﻿@page "/ShippingSelectionRules/Add"
+@inject NavigationManager Navigation
+
 @rendermode InteractiveServer
-<EditForm Model="@newData" OnSubmit="HandleAdd" FormName="addForm">
-	<DataAnnotationsValidator />
-	<ValidationSummary />
 
-	<div>
-		<label>Cargo</label>
-		<InputText @bind-Value="@newData.Cargo" />
-	</div>
+<EditForm Model="@newData" OnValidSubmit="HandleAdd" FormName="addForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-	<div>
-		<label>OrderNo</label>
-		<InputNumber @bind-Value="@newData.OrderNo" step="any" />
-	</div>
+    <div>
+        <label>Cargo</label>
+        <InputText @bind-Value="@newData.Cargo" />
+        <ValidationMessage For="() => newData.Cargo" />
+    </div>
 
-	<div>
-		<label>City</label>
-		<InputText @bind-Value="@newData.City" step="any" />
-	</div>
-	<div>
-		<label>District</label>
-		<InputText @bind-Value="@newData.District" step="any" />
-	</div>
+    <div>
+        <label>OrderNo</label>
+        <InputNumber @bind-Value="@newData.OrderNo" step="any" />
+        <ValidationMessage For="() => newData.OrderNo" />
+    </div>
+
+    <div>
+        <label>City</label>
+        <InputText @bind-Value="@newData.City" step="any" />
+        <ValidationMessage For="() => newData.City" />
+    </div>
+    <div>
+        <label>District</label>
+        <InputText @bind-Value="@newData.District" step="any" />
+        <ValidationMessage For="() => newData.District" />
+    </div>
 
 
-	<button type="submit">Add Data</button>
+    <button type="submit">Add Data</button>
 </EditForm>
-
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 @code {
-	private ShippingSelectionRulesViewModel newData = new ShippingSelectionRulesViewModel();
+    private ShippingSelectionRulesViewModel newData = new ShippingSelectionRulesViewModel();
+    private string? errorMessage;
 
-	protected override void OnInitialized()
-	{
-		newData ??= new();
-	}
+    protected override void OnInitialized()
+    {
+        newData ??= new();
+        errorMessage = string.Empty;
+    }
 
-	private async Task HandleAdd()
-	{
-		try
-		{
-			var createdData = new ShippingSelectionRulesViewModel
-				{
-					Cargo = newData.Cargo,
-					City = newData.City,
-					District = newData.District,
-					OrderNo = newData.OrderNo
-				};
-			var serializedData = System.Text.Json.JsonSerializer.Serialize(createdData);
-			var content = new StringContent(serializedData, System.Text.Encoding.UTF8, "application/json");
-			var response = await Http.PostAsync("/api/ShippingSelectionRules/create", content);
-			Http.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-			if (response.IsSuccessStatusCode)
-			{
-				Console.WriteLine("Data added successfully.");
-			}
-			else
-			{
-				var error = await response.Content.ReadAsStringAsync();
-				Console.WriteLine($"Failed to add data. Error: {error}");
-			}
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Exception occurred: {ex.Message}");
-		}
-	}
+    private async Task HandleAdd()
+    {
+        errorMessage = string.Empty;
+        try
+        {
+
+
+            var response = await Http.PostAsJsonAsync("/api/ShippingSelectionRules/create", newData);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/ShippingSelectionRules/Index");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to add data. Error: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An exception occurred: {ex.Message}";
+        }
+    }
 }

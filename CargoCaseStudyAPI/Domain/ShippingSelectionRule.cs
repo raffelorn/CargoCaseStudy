@@ -13,7 +13,13 @@ namespace CargoCaseStudyAPI.Domain
 
         public static ShippingSelectionRule FromModel(ShippingSelectionRulesViewModel model)
         {
-            return new ShippingSelectionRule { Cargo = model.Cargo, District = model.District, OrderNo = model.OrderNo, City = model.City };
+            return new ShippingSelectionRule
+            {
+                Cargo = model.Cargo,
+                District = model.District,
+                OrderNo = model.OrderNo,
+                City = model.City,
+            };
         }
     }
 }
