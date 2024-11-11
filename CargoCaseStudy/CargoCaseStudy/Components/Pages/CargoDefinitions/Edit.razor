@@ -1,4 +1,5 @@
 ﻿@page "/CargoDefinitions/Edit/{Id:int}"
+@using System.Text.Json
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 <h3>Edit Cargo Definitions</h3>
@@ -66,8 +67,28 @@
             }
             else
             {
-                var error = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Failed to edit data. Error: {error}";
+                var errorContent = await response.Content.ReadAsStringAsync();
+
+                var errorResponse = JsonSerializer.Deserialize<ValidationErrorResponse>(errorContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                if (errorResponse != null && errorResponse.Errors != null)
+                {
+                    if (errorResponse.Errors.TryGetValue("MinWeight", out var minWeightErrors))
+                    {
+                        errorMessage = string.Join(" ", minWeightErrors);
+                    }
+                    else
+                    {
+                        errorMessage = "An error occurred, but no specific messages were provided for Min Weight.";
+                    }
+                }
+                else
+                {
+                    errorMessage = "An unknown error occurred.";
+                }
             }
         }
         catch (Exception ex)

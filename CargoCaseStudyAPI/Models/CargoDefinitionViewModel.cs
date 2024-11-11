@@ -2,8 +2,8 @@
 
 namespace CargoCaseStudyAPI.Models
 {
-    public class CargoDefinitionViewModel
-    {
+    public class CargoDefinitionViewModel:IValidatableObject
+	{
         [Required(ErrorMessage = "Cargo is required.")]
         public string Cargo { get; set; }   
         [Required(ErrorMessage = "Min Weight is required.")]
