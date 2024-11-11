@@ -3,7 +3,7 @@
 
 ## Overview
 
-This is a TMS (Transportation Management System) application designed to manage shipping selection rules and cargo definitions. It features a Blazor front-end for CRUD operations and a .NET Core 6 backend with a PostgreSQL database. The application also includes a REST API to fetch shipping rules based on specific input parameters.
+This is a TMS (Transportation Management System) application designed to manage shipping selection rules and cargo definitions. It features a Blazor front-end for CRUD operations and a .NET Core 8 backend with a PostgreSQL database. The application also includes a REST API to fetch shipping rules based on specific input parameters.
 
 ## Technologies Used
 
