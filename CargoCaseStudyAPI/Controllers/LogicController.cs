@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Reflection.Emit;
 
 namespace CargoCaseStudyAPI.Controllers
 {
@@ -33,7 +35,11 @@ namespace CargoCaseStudyAPI.Controllers
             var result = await query.ToListAsync();
             return Ok(result);
         }
-
-
     }
+
+    //model.GetType().GetProperties().
+    //Where(p=>level.GetType().GetProperties().Any(q=>q.Name == p.Name))
+    //.ToList()
+    //.ForEach(p=>level.GetType().GetProperty(p.Name)
+    //.SetValue(level, model.GetType().GetProperty(p.Name).GetValue(model)));
 }
